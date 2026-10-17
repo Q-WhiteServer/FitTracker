@@ -82,7 +82,6 @@ CREATE TABLE `users` (
   `id_user` int(11) NOT NULL,
   `nama_lengkap` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `total_poin` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
