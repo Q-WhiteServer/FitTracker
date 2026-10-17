@@ -7,136 +7,117 @@ import {
   TouchableOpacity,
   ImageBackground,
   SafeAreaView,
-  StatusBar,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
+  StatusBar,
+  Platform,
 } from 'react-native';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 
 export default function LoginScreen({ navigation }) {
-  const [emailOrUsername, setEmailOrUsername] = useState('valentina.mesy@gmail.com');
+  const [email, setEmail] = useState('valentina.mesy@gmail.com');
   const [password, setPassword] = useState('1234567890');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-
-  const handleLogin = () => {
-    console.log('Login attempt:', { emailOrUsername, password });
-  };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* 1. Header Aplikasi & Logo FitTracker */}
-          <View style={styles.header}>
-            <View style={styles.logoContainer}>
-              <MaterialCommunityIcons name="dumbbell" size={24} color="#FFFFFF" />
-            </View>
-            <Text style={styles.appName}>FitTracker</Text>
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        
+        {/* Header Logo FitTracker */}
+        <View style={styles.header}>
+          <View style={styles.logoBox}>
+            <Ionicons name="barbell-outline" size={24} color="#FFFFFF" />
           </View>
+          <Text style={styles.appName}>FitTracker</Text>
+        </View>
 
-          {/* 2. Banner Hero */}
+        {/* Hero Card Banner */}
+        <View style={styles.bannerContainer}>
           <ImageBackground
-            source={{
-              uri: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=800&auto=format&fit=crop',
-            }}
+            source={require('../../assets/gambar 1.jpg')} // Ubah ke gambar1.jpg jika tanpa spasi
             style={styles.bannerImage}
             imageStyle={{ borderRadius: 16 }}
+            resizeMode="cover"
           >
-            <View style={styles.bannerOverlay}>
-              <Text style={styles.bannerTitle}>Selamat datang.</Text>
-              <Text style={styles.bannerSubtitle}>
-                Langkah kecil hari ini, lebih kuat esok hari.
-              </Text>
-            </View>
+            {/* Kosong karena gambar sudah ada tulisannya */}
           </ImageBackground>
+        </View>
 
-          {/* 3. Form Input Email/Username */}
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Email atau nama pengguna</Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                value={emailOrUsername}
-                onChangeText={setEmailOrUsername}
-                placeholder="Masukkan email atau username"
-                placeholderTextColor="#94A3B8"
-                autoCapitalize="none"
-              />
-              <Feather name="user" size={20} color="#94A3B8" style={styles.inputIcon} />
-            </View>
+        {/* Form Inputs */}
+        <View style={styles.formContainer}>
+          
+          {/* Email / Username Input */}
+          <Text style={styles.label}>Email atau nama pengguna</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Masukkan email"
+              placeholderTextColor="#A1A1AA"
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+            <Feather name="user" size={20} color="#71717A" />
           </View>
 
-          {/* 4. Form Input Kata Sandi */}
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Kata sandi</Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                placeholder="Masukkan kata sandi"
-                placeholderTextColor="#94A3B8"
+          {/* Password Input */}
+          <Text style={[styles.label, { marginTop: 16 }]}>Kata sandi</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Masukkan kata sandi"
+              placeholderTextColor="#A1A1AA"
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Feather
+                name={showPassword ? 'eye' : 'eye-off'}
+                size={20}
+                color="#71717A"
               />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.inputIcon}
-              >
-                <Feather
-                  name={showPassword ? 'eye' : 'eye-off'}
-                  size={20}
-                  color="#94A3B8"
-                />
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
 
-          {/* 5. Tampilkan Sandi & Lupa Kata Sandi */}
-          <View style={styles.optionsRow}>
+          {/* Checkbox Tampilkan Sandi & Lupa Kata Sandi */}
+          <View style={styles.rowBetween}>
             <TouchableOpacity
               style={styles.checkboxContainer}
-              onPress={() => setRememberMe(!rememberMe)}
-              activeOpacity={0.7}
+              onPress={() => setShowPassword(!showPassword)}
             >
-              <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
-                {rememberMe && <Feather name="check" size={12} color="#FFFFFF" />}
+              <View style={[styles.checkbox, showPassword && styles.checkboxActive]}>
+                {showPassword && <Feather name="check" size={12} color="#FFFFFF" />}
               </View>
-              <Text style={styles.checkboxLabel}>Tampilkan sandi</Text>
+              <Text style={styles.checkboxText}>Tampilkan sandi</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => navigation?.navigate('ForgotPassword')}>
-              <Text style={styles.forgotPasswordText}>Lupa kata sandi?</Text>
+            <TouchableOpacity>
+              <Text style={styles.forgotText}>Lupa kata sandi?</Text>
             </TouchableOpacity>
           </View>
 
-          {/* 6. Tombol Masuk */}
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={handleLogin}
+          {/* Tombol Masuk Utama */}
+          <TouchableOpacity 
+            style={styles.loginButton} 
             activeOpacity={0.8}
+            onPress={() => navigation.navigate('Personalization')}
           >
             <Feather name="arrow-right" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
             <Text style={styles.loginButtonText}>Masuk</Text>
           </TouchableOpacity>
 
-          {/* 7. Link Daftar */}
+          {/* Link Daftar Sekarang */}
           <View style={styles.registerContainer}>
             <Text style={styles.registerText}>Belum punya akun? </Text>
-            <TouchableOpacity onPress={() => navigation?.navigate('Register')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
               <Text style={styles.registerLink}>Daftar sekarang</Text>
             </TouchableOpacity>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -145,73 +126,57 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
-  scrollContent: {
+  scrollContainer: {
     paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 32,
+    paddingBottom: 30,
   },
-  /* Header Styles */
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
   },
-  logoContainer: {
-    width: 40,
-    height: 40,
+  logoBox: {
+    width: 42,
+    height: 42,
+    backgroundColor: '#059669',
     borderRadius: 12,
-    backgroundColor: '#10B981', // Hijau Khas FitTracker
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 12,
   },
   appName: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#0F172A',
   },
-  /* Hero Banner Styles */
+  bannerContainer: {
+    height: 210,
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 24,
+  },
   bannerImage: {
     width: '100%',
-    height: 180,
-    marginBottom: 24,
+    height: '100%',
     justifyContent: 'flex-end',
-    overflow: 'hidden',
-    borderRadius: 16,
   },
-  bannerOverlay: {
-    padding: 16,
-    backgroundColor: 'rgba(6, 78, 59, 0.65)',
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-  },
-  bannerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 4,
-  },
-  bannerSubtitle: {
-    fontSize: 13,
-    color: '#E2E8F0',
-    fontWeight: '400',
-  },
-  /* Input Form Styles */
-  formGroup: {
-    marginBottom: 16,
+  formContainer: {
+    width: '100%',
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#334155',
+    color: '#3F3F46',
     marginBottom: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#E4E4E7',
     borderRadius: 12,
     paddingHorizontal: 14,
     height: 50,
@@ -219,17 +184,14 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: 15,
-    color: '#0F172A',
+    fontSize: 14,
+    color: '#18181B',
   },
-  inputIcon: {
-    marginLeft: 8,
-  },
-  /* Options Row Styles */
-  optionsRow: {
+  rowBetween: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 14,
     marginBottom: 24,
   },
   checkboxContainer: {
@@ -239,47 +201,40 @@ const styles = StyleSheet.create({
   checkbox: {
     width: 18,
     height: 18,
-    borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: '#A1A1AA',
+    borderRadius: 4,
     marginRight: 8,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  checkboxChecked: {
-    backgroundColor: '#10B981',
-    borderColor: '#10B981',
+  checkboxActive: {
+    backgroundColor: '#059669',
+    borderColor: '#059669',
   },
-  checkboxLabel: {
+  checkboxText: {
     fontSize: 13,
-    color: '#64748B',
+    color: '#71717A',
   },
-  forgotPasswordText: {
+  forgotText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#0F766E',
+    color: '#047857',
   },
-  /* Button Styles */
   loginButton: {
-    height: 50,
-    backgroundColor: '#10B981',
+    backgroundColor: '#059669',
     borderRadius: 12,
+    height: 50,
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 20,
-    elevation: 2,
-    shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
   loginButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
-  /* Footer Styles */
   registerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -287,11 +242,11 @@ const styles = StyleSheet.create({
   },
   registerText: {
     fontSize: 14,
-    color: '#64748B',
+    color: '#71717A',
   },
   registerLink: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#0F766E',
+    fontWeight: '700',
+    color: '#047857',
   },
 });
