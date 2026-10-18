@@ -76,15 +76,11 @@ export default function DiscoverScreen({ navigation }) {
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.programScroll}>
-          {/* Card Program 1: Kuat dari Rumah (Navigasi ke WorkoutDetail) */}
-          <TouchableOpacity 
-            style={styles.programCard} 
-            activeOpacity={0.85}
-            onPress={() => navigation.navigate('WorkoutDetail')}
-          >
+          {/* Card Program 1: Kuat dari Rumah (Statis) */}
+          <TouchableOpacity style={styles.programCard} activeOpacity={0.85}>
             <View style={styles.imageWrapper}>
               <Image
-                source={require('../../assets/gambar 1.jpg')} // Sesuaikan dengan nama file gambar lokalmu
+                source={require('../../assets/gambar 1.jpg')} 
                 style={styles.cardImage}
                 resizeMode="cover"
               />
@@ -101,15 +97,11 @@ export default function DiscoverScreen({ navigation }) {
             </View>
           </TouchableOpacity>
 
-          {/* Card Program 2: Kardio Tanpa Alat (Navigasi ke WorkoutDetail) */}
-          <TouchableOpacity 
-            style={styles.programCard} 
-            activeOpacity={0.85}
-            onPress={() => navigation.navigate('WorkoutDetail')}
-          >
+          {/* Card Program 2: Kardio Tanpa Alat (Statis) */}
+          <TouchableOpacity style={styles.programCard} activeOpacity={0.85}>
             <View style={styles.imageWrapper}>
               <Image
-                source={require('../../assets/gambar 1.jpg')} // Sesuaikan dengan nama file gambar lokalmu
+                source={require('../../assets/gambar 1.jpg')} 
                 style={styles.cardImage}
                 resizeMode="cover"
               />
@@ -139,11 +131,7 @@ export default function DiscoverScreen({ navigation }) {
         </Text>
 
         {/* Item 1: Siap Bergerak */}
-        <TouchableOpacity 
-          style={styles.stretchCard} 
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate('WorkoutDetail')}
-        >
+        <TouchableOpacity style={styles.stretchCard} activeOpacity={0.7}>
           <View style={styles.stretchIconBox}>
             <Feather name="sun" size={20} color="#059669" />
           </View>
@@ -160,11 +148,7 @@ export default function DiscoverScreen({ navigation }) {
         </TouchableOpacity>
 
         {/* Item 2: Rileks & Pulih */}
-        <TouchableOpacity 
-          style={styles.stretchCard} 
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate('WorkoutDetail')}
-        >
+        <TouchableOpacity style={styles.stretchCard} activeOpacity={0.7}>
           <View style={styles.stretchIconBoxAlt}>
             <MaterialCommunityIcons name="weather-windy" size={20} color="#059669" />
           </View>
@@ -194,7 +178,8 @@ export default function DiscoverScreen({ navigation }) {
           <Text style={[styles.navLabel, styles.navLabelActive]}>Temukan</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('Komunitas')}>
+        {/* Menu Komunitas (Terhubung ke CommunityScreen) */}
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Community')}>
           <Feather name="users" size={22} color="#71717A" />
           <Text style={styles.navLabel}>Komunitas</Text>
         </TouchableOpacity>

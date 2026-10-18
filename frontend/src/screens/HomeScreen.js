@@ -16,15 +16,18 @@ export default function HomeScreen({ navigation }) {
   const [selectedMuscle, setSelectedMuscle] = useState('Otot Perut');
   const [selectedLevel, setSelectedLevel] = useState('Menengah');
   const [activeTab, setActiveTab] = useState('Latihan');
+  
+  // State untuk melacak tanggal berapa yang sedang diklik
+  const [selectedDate, setSelectedDate] = useState('14');
 
   const days = [
-    { day: 'Sen', date: '12', hasDot: true, active: false },
-    { day: 'Sel', date: '13', hasDot: true, active: false },
-    { day: 'Rab', date: '14', hasDot: true, active: true },
-    { day: 'Kam', date: '15', hasDot: false, active: false },
-    { day: 'Jum', date: '16', hasDot: false, active: false },
-    { day: 'Sab', date: '17', hasDot: false, active: false },
-    { day: 'Min', date: '18', hasDot: false, active: false },
+    { day: 'Sen', date: '12', hasDot: true },
+    { day: 'Sel', date: '13', hasDot: true },
+    { day: 'Rab', date: '14', hasDot: true },
+    { day: 'Kam', date: '15', hasDot: false },
+    { day: 'Jum', date: '16', hasDot: false },
+    { day: 'Sab', date: '17', hasDot: false },
+    { day: 'Min', date: '18', hasDot: false },
   ];
 
   return (
@@ -54,19 +57,23 @@ export default function HomeScreen({ navigation }) {
         </View>
 
         <View style={styles.daysRow}>
-          {days.map((item, index) => (
-            <TouchableOpacity 
-              key={index} 
-              style={[styles.dayItem, item.active && styles.dayItemActive]}
-              activeOpacity={0.8}
-            >
-              <Text style={[styles.dayName, item.active && styles.dayNameActive]}>{item.day}</Text>
-              <Text style={[styles.dayDate, item.active && styles.dayDateActive]}>{item.date}</Text>
-              {item.hasDot && (
-                <View style={[styles.dot, item.active && styles.dotActive]} />
-              )}
-            </TouchableOpacity>
-          ))}
+          {days.map((item, index) => {
+            const isActive = selectedDate === item.date;
+            return (
+              <TouchableOpacity 
+                key={index} 
+                style={[styles.dayItem, isActive && styles.dayItemActive]}
+                activeOpacity={0.8}
+                onPress={() => setSelectedDate(item.date)}
+              >
+                <Text style={[styles.dayName, isActive && styles.dayNameActive]}>{item.day}</Text>
+                <Text style={[styles.dayDate, isActive && styles.dayDateActive]}>{item.date}</Text>
+                {item.hasDot && (
+                  <View style={[styles.dot, isActive && styles.dotActive]} />
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {/* Weekly Target Card */}
@@ -92,7 +99,7 @@ export default function HomeScreen({ navigation }) {
         {/* Schedule Banner Card */}
         <View style={styles.scheduleCard}>
           <ImageBackground
-            source={require('../../assets/gambar 1.jpg')} // Sesuaikan nama file gambar lokalmu di assets
+            source={require('../../assets/gambar 1.jpg')}
             style={styles.scheduleImage}
             imageStyle={{ borderRadius: 16 }}
             resizeMode="cover"
@@ -121,7 +128,11 @@ export default function HomeScreen({ navigation }) {
         </View>
 
         {/* Custom Program Banner */}
-        <TouchableOpacity style={styles.customBanner} activeOpacity={0.8}>
+        <TouchableOpacity 
+          style={styles.customBanner} 
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('WorkoutDetail')}
+        >
           <View style={styles.customIconBox}>
             <Ionicons name="options-outline" size={20} color="#059669" />
           </View>
@@ -214,7 +225,7 @@ export default function HomeScreen({ navigation }) {
           <Text style={[styles.navText, activeTab === 'Latihan' && styles.navTextActive]}>Latihan</Text>
         </TouchableOpacity>
 
-        {/* Menu Temukan: Diarahkan ke DiscoverScreen */}
+        {/* Menu Temukan */}
         <TouchableOpacity 
           style={styles.navItem} 
           onPress={() => {
@@ -226,7 +237,14 @@ export default function HomeScreen({ navigation }) {
           <Text style={[styles.navText, activeTab === 'Temukan' && styles.navTextActive]}>Temukan</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('Komunitas')}>
+        {/* Menu Komunitas (Terhubung ke CommunityScreen) */}
+        <TouchableOpacity 
+          style={styles.navItem} 
+          onPress={() => {
+            setActiveTab('Komunitas');
+            navigation.navigate('Community');
+          }}
+        >
           <Feather name="users" size={22} color={activeTab === 'Komunitas' ? '#059669' : '#A1A1AA'} />
           <Text style={[styles.navText, activeTab === 'Komunitas' && styles.navTextActive]}>Komunitas</Text>
         </TouchableOpacity>

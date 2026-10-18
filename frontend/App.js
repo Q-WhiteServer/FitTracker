@@ -8,7 +8,11 @@ import RegisterScreen from './src/screens/RegisterScreen';
 import PersonalizationScreen from './src/screens/PersonalizationScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import DiscoverScreen from './src/screens/DiscoverScreen';
-import WorkoutDetailScreen from './src/screens/WorkoutDetailScreen'; // Impor WorkoutDetailScreen
+import WorkoutDetailScreen from './src/screens/WorkoutDetailScreen';
+import EditExerciseScreen from './src/screens/EditExerciseScreen';
+import ActiveWorkoutScreen from './src/screens/ActiveWorkoutScreen';
+import CommunityScreen from './src/screens/CommunityScreen';
+import CreateGroupScreen from './src/screens/CreateGroupScreen'; // Impor CreateGroupScreen
 
 const Stack = createNativeStackNavigator();
 
@@ -44,6 +48,26 @@ export default function App() {
         <Stack.Screen 
           name="WorkoutDetail" 
           component={WorkoutDetailScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="EditExercise" 
+          component={EditExerciseScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="ActiveWorkout" 
+          component={ActiveWorkoutScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="Community" 
+          component={CommunityScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="CreateGroup" 
+          component={CreateGroupScreen} 
           options={{ headerShown: false }} 
         />
       </Stack.Navigator>
