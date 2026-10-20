@@ -8,6 +8,9 @@ import {
   ScrollView,
   StatusBar,
   Platform,
+  Modal,
+  TextInput,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 
@@ -34,33 +37,59 @@ export default function CommunityScreen({ navigation, route }) {
       avatarText: 'KR',
       isAlt: true,
     },
+    {
+      id: '3',
+      title: 'Yoga Biar Rileks',
+      category: 'Yoga',
+      members: '215',
+      highlight: 'Sesi meditasi sore ini',
+      avatarText: 'YB',
+      isAlt: false,
+    },
+    {
+      id: '4',
+      title: 'Gowes Santai Surabaya',
+      category: 'Bersepeda',
+      members: '94',
+      highlight: 'Rute akhir pekan siap',
+      avatarText: 'GS',
+      isAlt: true,
+    },
   ]);
 
-  // Menangkap data grup baru dari CreateGroupScreen
+  // Menangkap data grup baru dari CreateGroupScreen tanpa duplikasi
   useEffect(() => {
     if (route.params?.newGroup) {
       const { name, category } = route.params.newGroup;
-      
-      // Ambil 2 huruf depan untuk avatar
-      const words = name.trim().split(' ');
-      let initials = 'GP';
-      if (words.length >= 2) {
-        initials = (words[0][0] + words[1][0]).toUpperCase();
-      } else if (words.length === 1 && words[0].length >= 2) {
-        initials = words[0].substring(0, 2).toUpperCase();
-      }
 
-      const newGroupObj = {
-        id: Date.now().toString(),
-        title: name,
-        category: category || 'Umum',
-        members: '1',
-        highlight: 'Grup baru saja dibuat',
-        avatarText: initials,
-        isAlt: false,
-      };
+      setGroups((prevGroups) => {
+        const exists = prevGroups.some(
+          (g) => g.title.toLowerCase() === name.trim().toLowerCase()
+        );
+        if (exists) return prevGroups;
 
-      setGroups((prevGroups) => [newGroupObj, ...prevGroups]);
+        const words = name.trim().split(' ');
+        let initials = 'GP';
+        if (words.length >= 2) {
+          initials = (words[0][0] + words[1][0]).toUpperCase();
+        } else if (words.length === 1 && words[0].length >= 2) {
+          initials = words[0].substring(0, 2).toUpperCase();
+        }
+
+        const newGroupObj = {
+          id: Date.now().toString(),
+          title: name,
+          category: category || 'Umum',
+          members: '1',
+          highlight: 'Grup baru saja dibuat',
+          avatarText: initials,
+          isAlt: false,
+        };
+
+        return [newGroupObj, ...prevGroups];
+      });
+
+      navigation.setParams({ newGroup: undefined });
     }
   }, [route.params?.newGroup]);
 
@@ -88,6 +117,53 @@ export default function CommunityScreen({ navigation, route }) {
     });
   };
 
+  // State untuk Komentar
+  const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
+  const [selectedFeed, setSelectedFeed] = useState(null);
+  const [newCommentText, setNewCommentText] = useState('');
+
+  const [commentsData, setCommentsData] = useState({
+    faiq: [
+      { id: '1', name: 'Rian Prasetya', avatar: 'RP', text: 'Mantap mas Faiq! Besok gass lagi 🔥', time: '20 menit lalu' },
+      { id: '2', name: 'Siti Rahma', avatar: 'SR', text: 'Pace berapa tadi mas?', time: '15 menit lalu' },
+      { id: '3', name: 'Faiq Ahmad', avatar: 'FA', text: 'Pace 6:15 mbak Siti 😁', time: '10 menit lalu' },
+    ],
+    era: [
+      { id: '1', name: 'Dimas Kurnia', avatar: 'DK', text: 'Siap hadir sore nanti!', time: '45 menit lalu' },
+      { id: '2', name: 'Nadia Putri', avatar: 'NP', text: 'Ada latihan leg day gak mas?', time: '30 menit lalu' },
+      { id: '3', name: 'Era Zhafran', avatar: 'RN', text: 'Fokus upper body & core hari ini mbak', time: '20 menit lalu' },
+      { id: '4', name: 'Budi Santoso', avatar: 'BS', text: 'Izin gabung ya mas', time: '15 menit lalu' },
+      { id: '5', name: 'Era Zhafran', avatar: 'RN', text: 'Monggo mas Budi, ditunggu!', time: '10 menit lalu' },
+    ],
+    mesy: [
+      { id: '1', name: 'Rafifah', avatar: 'RF', text: 'Keren banget Valentina! Konsisten terus 💪', time: 'Yesterday' },
+    ],
+  });
+
+  const openCommentModal = (feedKey, userName) => {
+    setSelectedFeed({ key: feedKey, name: userName });
+    setIsCommentModalVisible(true);
+  };
+
+  const handleAddComment = () => {
+    if (!newCommentText.trim() || !selectedFeed) return;
+
+    const newComment = {
+      id: Date.now().toString(),
+      name: 'Valentina Mesy',
+      avatar: 'VM',
+      text: newCommentText,
+      time: 'Baru saja',
+    };
+
+    setCommentsData((prev) => ({
+      ...prev,
+      [selectedFeed.key]: [...prev[selectedFeed.key], newComment],
+    }));
+
+    setNewCommentText('');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -113,12 +189,15 @@ export default function CommunityScreen({ navigation, route }) {
 
         {/* Group Action Buttons */}
         <View style={styles.actionButtonsRow}>
-          <TouchableOpacity style={styles.btnPrimary} activeOpacity={0.8}>
+          <TouchableOpacity 
+            style={styles.btnPrimary} 
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('SearchGroup')}
+          >
             <Feather name="search" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
             <Text style={styles.btnPrimaryText}>Cari Grup</Text>
           </TouchableOpacity>
 
-          {/* Tombol Buat Grup */}
           <TouchableOpacity 
             style={styles.btnOutline} 
             activeOpacity={0.8}
@@ -137,7 +216,12 @@ export default function CommunityScreen({ navigation, route }) {
 
         {/* Render List Grup Dinamis */}
         {groups.map((item) => (
-          <TouchableOpacity key={item.id} style={styles.groupCard} activeOpacity={0.7}>
+          <TouchableOpacity 
+            key={item.id} 
+            style={styles.groupCard} 
+            activeOpacity={0.7}
+            onPress={() => navigation.navigate('GroupChat', { groupName: item.title, category: item.category, members: item.members })}
+          >
             <View style={item.isAlt ? styles.groupAvatarAlt : styles.groupAvatar}>
               <Text style={item.isAlt ? styles.groupAvatarTextAlt : styles.groupAvatarText}>
                 {item.avatarText}
@@ -200,8 +284,8 @@ export default function CommunityScreen({ navigation, route }) {
               <Text style={styles.feedFooterText}>{likes.faiq} suka</Text>
             </TouchableOpacity>
             <Text style={styles.dotSeparator}>•</Text>
-            <TouchableOpacity>
-              <Text style={styles.feedFooterText}>3 komentar</Text>
+            <TouchableOpacity onPress={() => openCommentModal('faiq', 'Faiq Ahmad')}>
+              <Text style={styles.feedFooterText}>{commentsData.faiq.length} komentar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -231,8 +315,8 @@ export default function CommunityScreen({ navigation, route }) {
               <Text style={styles.feedFooterText}>{likes.era} suka</Text>
             </TouchableOpacity>
             <Text style={styles.dotSeparator}>•</Text>
-            <TouchableOpacity>
-              <Text style={styles.feedFooterText}>5 komentar</Text>
+            <TouchableOpacity onPress={() => openCommentModal('era', 'Era Zhafran')}>
+              <Text style={styles.feedFooterText}>{commentsData.era.length} komentar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -262,13 +346,78 @@ export default function CommunityScreen({ navigation, route }) {
               <Text style={styles.feedFooterText}>{likes.mesy} suka</Text>
             </TouchableOpacity>
             <Text style={styles.dotSeparator}>•</Text>
-            <TouchableOpacity>
-              <Text style={styles.feedFooterText}>1 komentar</Text>
+            <TouchableOpacity onPress={() => openCommentModal('mesy', 'Valentina Mesy')}>
+              <Text style={styles.feedFooterText}>{commentsData.mesy.length} komentar</Text>
             </TouchableOpacity>
           </View>
         </View>
 
       </ScrollView>
+
+      {/* Modal Komentar */}
+      <Modal
+        visible={isCommentModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsCommentModalVisible(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
+          <View style={styles.modalContent}>
+            {/* Header Modal */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                Komentar {selectedFeed ? `(${selectedFeed.name})` : ''}
+              </Text>
+              <TouchableOpacity onPress={() => setIsCommentModalVisible(false)}>
+                <Feather name="x" size={22} color="#18181B" />
+              </TouchableOpacity>
+            </View>
+
+            {/* List Komentar */}
+            <ScrollView style={styles.commentList} showsVerticalScrollIndicator={false}>
+              {selectedFeed &&
+                commentsData[selectedFeed.key]?.map((comment) => (
+                  <View key={comment.id} style={styles.commentItem}>
+                    <View style={styles.commentAvatar}>
+                      <Text style={styles.commentAvatarText}>{comment.avatar}</Text>
+                    </View>
+                    <View style={styles.commentBody}>
+                      <View style={styles.commentNameRow}>
+                        <Text style={styles.commentName}>{comment.name}</Text>
+                        <Text style={styles.commentTime}>{comment.time}</Text>
+                      </View>
+                      <Text style={styles.commentText}>{comment.text}</Text>
+                    </View>
+                  </View>
+                ))}
+            </ScrollView>
+
+            {/* Input Komentar Baru */}
+            <View style={styles.commentInputRow}>
+              <TextInput
+                style={styles.commentInput}
+                placeholder="Tulis komentar..."
+                placeholderTextColor="#A1A1AA"
+                value={newCommentText}
+                onChangeText={setNewCommentText}
+              />
+              <TouchableOpacity
+                style={[
+                  styles.sendCommentBtn,
+                  !newCommentText.trim() && { backgroundColor: '#A1A1AA' },
+                ]}
+                onPress={handleAddComment}
+                disabled={!newCommentText.trim()}
+              >
+                <Feather name="send" size={16} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
 
       {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
@@ -282,17 +431,17 @@ export default function CommunityScreen({ navigation, route }) {
           <Text style={styles.navLabel}>Temukan</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('Komunitas')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Community')}>
           <Feather name="users" size={22} color="#059669" />
           <Text style={[styles.navLabel, styles.navLabelActive]}>Komunitas</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('Laporan')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Report')}>
           <Feather name="bar-chart-2" size={22} color="#71717A" />
           <Text style={styles.navLabel}>Laporan</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('Pengaturan')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Settings')}>
           <Feather name="settings" size={22} color="#71717A" />
           <Text style={styles.navLabel}>Pengaturan</Text>
         </TouchableOpacity>
@@ -592,5 +741,102 @@ const styles = StyleSheet.create({
   navLabelActive: {
     color: '#059669',
     fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 16,
+    maxHeight: '75%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F4F4F5',
+    paddingBottom: 12,
+    marginBottom: 12,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  commentList: {
+    maxHeight: 280,
+  },
+  commentItem: {
+    flexDirection: 'row',
+    marginBottom: 14,
+  },
+  commentAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#ECFDF5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  commentAvatarText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#059669',
+  },
+  commentBody: {
+    flex: 1,
+    backgroundColor: '#FAFAFA',
+    borderRadius: 12,
+    padding: 10,
+  },
+  commentNameRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+  },
+  commentName: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  commentTime: {
+    fontSize: 10,
+    color: '#9CA3AF',
+  },
+  commentText: {
+    fontSize: 12,
+    color: '#374151',
+  },
+  commentInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#F4F4F5',
+    paddingTop: 10,
+    marginTop: 8,
+  },
+  commentInput: {
+    flex: 1,
+    backgroundColor: '#F4F4F5',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    height: 40,
+    fontSize: 13,
+    color: '#18181B',
+    marginRight: 8,
+  },
+  sendCommentBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#059669',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

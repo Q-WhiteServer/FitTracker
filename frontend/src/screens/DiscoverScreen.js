@@ -184,7 +184,14 @@ export default function DiscoverScreen({ navigation }) {
           <Text style={styles.navLabel}>Komunitas</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('Laporan')}>
+        {/* Menu Laporan (Terhubung ke ReportScreen) */}
+        <TouchableOpacity 
+          style={styles.navItem} 
+          onPress={() => {
+            setActiveTab('Laporan');
+            navigation.navigate('Report');
+          }}
+        >
           <Feather name="bar-chart-2" size={22} color="#71717A" />
           <Text style={styles.navLabel}>Laporan</Text>
         </TouchableOpacity>

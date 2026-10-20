@@ -12,7 +12,11 @@ import WorkoutDetailScreen from './src/screens/WorkoutDetailScreen';
 import EditExerciseScreen from './src/screens/EditExerciseScreen';
 import ActiveWorkoutScreen from './src/screens/ActiveWorkoutScreen';
 import CommunityScreen from './src/screens/CommunityScreen';
-import CreateGroupScreen from './src/screens/CreateGroupScreen'; // Impor CreateGroupScreen
+import CreateGroupScreen from './src/screens/CreateGroupScreen';
+import SearchGroupScreen from './src/screens/SearchGroupScreen';
+import GroupChatScreen from './src/screens/GroupChatScreen';
+import ReportScreen from './src/screens/ReportScreen';
+import SettingsScreen from './src/screens/SettingsScreen'; // Impor SettingsScreen
 
 const Stack = createNativeStackNavigator();
 
@@ -68,6 +72,26 @@ export default function App() {
         <Stack.Screen 
           name="CreateGroup" 
           component={CreateGroupScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="SearchGroup" 
+          component={SearchGroupScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="GroupChat" 
+          component={GroupChatScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="Report" 
+          component={ReportScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="Settings" 
+          component={SettingsScreen} 
           options={{ headerShown: false }} 
         />
       </Stack.Navigator>

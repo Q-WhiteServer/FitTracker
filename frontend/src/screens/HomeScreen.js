@@ -237,7 +237,7 @@ export default function HomeScreen({ navigation }) {
           <Text style={[styles.navText, activeTab === 'Temukan' && styles.navTextActive]}>Temukan</Text>
         </TouchableOpacity>
 
-        {/* Menu Komunitas (Terhubung ke CommunityScreen) */}
+        {/* Menu Komunitas */}
         <TouchableOpacity 
           style={styles.navItem} 
           onPress={() => {
@@ -249,12 +249,26 @@ export default function HomeScreen({ navigation }) {
           <Text style={[styles.navText, activeTab === 'Komunitas' && styles.navTextActive]}>Komunitas</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('Laporan')}>
+        {/* Menu Laporan */}
+        <TouchableOpacity 
+          style={styles.navItem} 
+          onPress={() => {
+            setActiveTab('Laporan');
+            navigation.navigate('Report');
+          }}
+        >
           <Feather name="bar-chart-2" size={22} color={activeTab === 'Laporan' ? '#059669' : '#A1A1AA'} />
           <Text style={[styles.navText, activeTab === 'Laporan' && styles.navTextActive]}>Laporan</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('Pengaturan')}>
+        {/* Menu Pengaturan */}
+        <TouchableOpacity 
+          style={styles.navItem} 
+          onPress={() => {
+            setActiveTab('Pengaturan');
+            navigation.navigate('Settings');
+          }}
+        >
           <Feather name="settings" size={22} color={activeTab === 'Pengaturan' ? '#059669' : '#A1A1AA'} />
           <Text style={[styles.navText, activeTab === 'Pengaturan' && styles.navTextActive]}>Pengaturan</Text>
         </TouchableOpacity>
