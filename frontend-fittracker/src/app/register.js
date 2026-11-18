@@ -6,7 +6,6 @@ import {
   Pressable,
   TextInput,
   StyleSheet,
-  Dimensions,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -18,8 +17,6 @@ import { router } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
-
 export default function RegisterScreen() {
   const { register } = useAuth();
   const [namaLengkap, setNamaLengkap] = useState('');
@@ -27,6 +24,10 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
+
+  // Cek sederhana apakah kata sandi kuat (minimal 8 karakter + ada huruf & angka)
+  const isStrongPassword =
+    password.length >= 8 && /[A-Za-z]/.test(password) && /[0-9]/.test(password);
 
   async function handleRegister() {
     if (!namaLengkap || !email || !password) {
@@ -46,7 +47,7 @@ export default function RegisterScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
@@ -54,88 +55,79 @@ export default function RegisterScreen() {
         <ScrollView
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          {/* ── Hero ── */}
-          <View style={styles.hero}>
-            <View
-              style={[
-                styles.decoCircle,
-                { top: -40, right: -30, width: 140, height: 140, opacity: 0.15 },
-              ]}
-            />
-            <View
-              style={[
-                styles.decoCircle,
-                { bottom: 18, left: -50, width: 120, height: 120, opacity: 0.1 },
-              ]}
-            />
-            <View style={styles.heroBadge}>
-              <Ionicons name="barbell" size={56} color="#FFFFFF" />
+          {/* ── Header logo ── */}
+          <View style={styles.logoRow}>
+            <View style={styles.logoBox}>
+              <Ionicons name="barbell" size={20} color="#FFFFFF" />
             </View>
-            <Text style={styles.heroBrand}>FitTracker</Text>
-            <Text style={styles.heroTagline}>Mulai perjalanan fitness Anda</Text>
+            <Text style={styles.logoText}>FitTracker</Text>
           </View>
 
-          {/* ── Form card ── */}
-          <View style={styles.card}>
-            <Text style={styles.welcomeTitle}>Buat Akun Baru</Text>
-            <Text style={styles.welcomeSubtitle}>
-              Daftar untuk melacak progres latihan Anda
-            </Text>
+          {/* ── Tombol Kembali ── */}
+          <Pressable style={styles.backBtn} onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={18} color="#6B7280" />
+            <Text style={styles.backText}>Kembali</Text>
+          </Pressable>
 
-            {/* Nama Lengkap */}
-            <Text style={styles.fieldLabel}>Nama Lengkap</Text>
+          {/* ── Judul & Subjudul ── */}
+          <View style={styles.headerTextWrap}>
+            <Text style={styles.title}>Mulai jadi lebih kuat.</Text>
+            <Text style={styles.subtitle}>
+              Buat akun dan bangun kebiasaan sehatmu bersama FitTracker.
+            </Text>
+          </View>
+
+          {/* ── Form ── */}
+          <View style={styles.form}>
+            {/* Nama pengguna */}
+            <Text style={styles.fieldLabel}>Nama pengguna</Text>
             <View style={styles.inputWrap}>
-              <Ionicons
-                name="person-outline"
-                size={20}
-                color={colors.muted}
-                style={styles.inputIcon}
-              />
               <TextInput
                 style={styles.input}
                 value={namaLengkap}
                 onChangeText={setNamaLengkap}
-                placeholder="Nama lengkap Anda"
-                placeholderTextColor={colors.muted}
+                placeholder="valentina mesy"
+                placeholderTextColor="#9CA3AF"
+              />
+              <Ionicons
+                name="person-outline"
+                size={20}
+                color="#9CA3AF"
+                style={styles.inputIconRight}
               />
             </View>
 
             {/* Email */}
             <Text style={styles.fieldLabel}>Email</Text>
             <View style={styles.inputWrap}>
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color={colors.muted}
-                style={styles.inputIcon}
-              />
               <TextInput
                 style={styles.input}
                 value={email}
                 onChangeText={setEmail}
                 placeholder="nama@email.com"
-                placeholderTextColor={colors.muted}
+                placeholderTextColor="#9CA3AF"
                 autoCapitalize="none"
                 keyboardType="email-address"
               />
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color="#9CA3AF"
+                style={styles.inputIconRight}
+              />
             </View>
 
-            {/* Password */}
-            <Text style={styles.fieldLabel}>Kata Sandi</Text>
+            {/* Kata sandi */}
+            <Text style={styles.fieldLabel}>Kata sandi</Text>
             <View style={styles.inputWrap}>
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={colors.muted}
-                style={styles.inputIcon}
-              />
               <TextInput
                 style={styles.input}
                 value={password}
                 onChangeText={setPassword}
-                placeholder="••••••••"
-                placeholderTextColor={colors.muted}
+                placeholder="••••••••••••"
+                placeholderTextColor="#9CA3AF"
                 secureTextEntry={!showPass}
               />
               <Pressable
@@ -143,16 +135,45 @@ export default function RegisterScreen() {
                 style={styles.eyeBtn}
               >
                 <Ionicons
-                  name={showPass ? 'eye-off-outline' : 'eye-outline'}
+                  name={showPass ? 'eye-outline' : 'eye-off-outline'}
                   size={20}
-                  color={colors.muted}
+                  color="#9CA3AF"
                 />
               </Pressable>
             </View>
 
-            {/* Register button */}
+            {/* Keterangan & Indikator Kata Sandi */}
+            <Text style={styles.passwordHint}>
+              Minimal 8 karakter, gabungkan huruf dan angka.
+            </Text>
+            {password.length > 0 && (
+              <View style={styles.strengthRow}>
+                <Ionicons
+                  name={
+                    isStrongPassword
+                      ? 'checkmark-circle-outline'
+                      : 'information-circle-outline'
+                  }
+                  size={16}
+                  color={isStrongPassword ? colors.primary : '#F59E0B'}
+                />
+                <Text
+                  style={[
+                    styles.strengthText,
+                    { color: isStrongPassword ? colors.primary : '#F59E0B' },
+                  ]}
+                >
+                  {isStrongPassword ? 'Kata sandi kuat' : 'Kata sandi belum kuat'}
+                </Text>
+              </View>
+            )}
+
+            {/* Tombol Buat akun */}
             <Pressable
-              style={({ pressed }) => [styles.loginBtn, pressed && { opacity: 0.85 }]}
+              style={({ pressed }) => [
+                styles.submitBtn,
+                pressed && { opacity: 0.85 },
+              ]}
               onPress={handleRegister}
               disabled={loading}
             >
@@ -160,18 +181,24 @@ export default function RegisterScreen() {
                 <ActivityIndicator color="#FFF" />
               ) : (
                 <>
-                  <Text style={styles.loginBtnText}>Daftar</Text>
                   <Ionicons
                     name="arrow-forward"
-                    size={20}
+                    size={18}
                     color="#FFF"
-                    style={{ marginLeft: 8 }}
+                    style={{ marginRight: 8 }}
                   />
+                  <Text style={styles.submitBtnText}>Buat akun</Text>
                 </>
               )}
             </Pressable>
 
-            {/* Login link */}
+            {/* Syarat & Ketentuan */}
+            <Text style={styles.termsText}>
+              Dengan mendaftar, kamu menyetujui Ketentuan Layanan dan{'\n'}
+              Kebijakan Privasi FitTracker.
+            </Text>
+
+            {/* Link Masuk */}
             <Pressable
               style={styles.linkButton}
               onPress={() => router.push('/login')}
@@ -181,6 +208,19 @@ export default function RegisterScreen() {
                 <Text style={styles.boldText}>Masuk</Text>
               </Text>
             </Pressable>
+
+            {/* Banner Keamanan Bawah */}
+            <View style={styles.privacyBanner}>
+              <Ionicons
+                name="shield-checkmark-outline"
+                size={22}
+                color={colors.primary}
+                style={{ marginRight: 12 }}
+              />
+              <Text style={styles.privacyText}>
+                Data pribadimu aman. Kamu yang menentukan perjalanan latihanmu.
+              </Text>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -189,123 +229,167 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.primary },
-  scroll: { flexGrow: 1 },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  scroll: { flexGrow: 1, paddingBottom: 24 },
 
-  /* Hero */
-  hero: {
-    height: SCREEN_HEIGHT * 0.4,
+  /* ── Header Logo ── */
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 14,
+    paddingBottom: 14,
+  },
+  logoBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 36,
-    overflow: 'hidden',
+    marginRight: 10,
   },
-  decoCircle: {
-    position: 'absolute',
-    borderRadius: 999,
-    backgroundColor: '#FFFFFF',
-  },
-  heroBadge: {
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  heroBrand: {
-    fontSize: 34,
+  logoText: {
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#FFFFFF',
-    letterSpacing: 0.5,
-  },
-  heroTagline: {
-    fontSize: 15,
-    color: 'rgba(255,255,255,0.85)',
-    marginTop: 6,
+    color: '#111827',
   },
 
-  /* Form card */
-  card: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    marginTop: -28,
-    paddingHorizontal: 26,
-    paddingTop: 30,
-    paddingBottom: 30,
+  /* ── Tombol Kembali ── */
+  backBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 16,
+    alignSelf: 'flex-start',
   },
-  welcomeTitle: {
-    fontSize: 24,
+  backText: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginLeft: 6,
+  },
+
+  /* ── Judul ── */
+  headerTextWrap: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 28,
     fontWeight: 'bold',
-    color: colors.text,
+    color: '#111827',
+    marginBottom: 6,
   },
-  welcomeSubtitle: {
-    fontSize: 15,
-    color: colors.muted,
-    marginTop: 6,
-    marginBottom: 24,
-    lineHeight: 22,
+  subtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    lineHeight: 20,
+  },
+
+  /* ── Form ── */
+  form: {
+    paddingHorizontal: 20,
   },
   fieldLabel: {
     fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
+    fontWeight: '500',
+    color: '#1F2937',
     marginBottom: 8,
-    marginTop: 2,
   },
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    borderRadius: 14,
-    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
     marginBottom: 16,
-    height: 54,
-  },
-  inputIcon: {
+    height: 52,
     paddingHorizontal: 14,
   },
   input: {
     flex: 1,
-    fontSize: 16,
-    color: colors.text,
+    fontSize: 15,
+    color: '#111827',
     paddingVertical: 0,
   },
+  inputIconRight: {
+    marginLeft: 8,
+  },
   eyeBtn: {
-    paddingHorizontal: 14,
-    height: '100%',
+    marginLeft: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  loginBtn: {
+
+  /* ── Password Hint & Strength ── */
+  passwordHint: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: -6,
+    marginBottom: 8,
+  },
+  strengthRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  strengthText: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+
+  /* ── Tombol Buat Akun ── */
+  submitBtn: {
     flexDirection: 'row',
     backgroundColor: colors.primary,
-    height: 56,
-    borderRadius: 16,
+    height: 52,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
+    marginTop: 6,
   },
-  loginBtnText: {
+  submitBtnText: {
     color: '#FFFFFF',
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: 'bold',
   },
+
+  /* ── Syarat & Link Masuk ── */
+  termsText: {
+    fontSize: 12,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginTop: 16,
+  },
   linkButton: {
-    marginTop: 24,
+    marginTop: 18,
     alignItems: 'center',
   },
   linkText: {
-    fontSize: 15,
-    color: colors.muted,
+    fontSize: 14,
+    color: '#6B7280',
   },
   boldText: {
     color: colors.primary,
     fontWeight: 'bold',
+  },
+
+  /* ── Banner Keamanan ── */
+  privacyBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ECFDF5',
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 22,
+  },
+  privacyText: {
+    flex: 1,
+    fontSize: 12.5,
+    color: '#065F46',
+    lineHeight: 18,
   },
 });

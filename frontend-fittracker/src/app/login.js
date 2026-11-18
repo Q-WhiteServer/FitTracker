@@ -11,6 +11,7 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,7 +19,7 @@ import { router } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -45,7 +46,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
@@ -53,44 +54,31 @@ export default function LoginScreen() {
         <ScrollView
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          {/* ── Hero ── */}
-          <View style={styles.hero}>
-            <View
-              style={[
-                styles.decoCircle,
-                { top: -40, right: -30, width: 140, height: 140, opacity: 0.15 },
-              ]}
-            />
-            <View
-              style={[
-                styles.decoCircle,
-                { bottom: 18, left: -50, width: 120, height: 120, opacity: 0.1 },
-              ]}
-            />
-            <View style={styles.heroBadge}>
-              <Ionicons name="fitness" size={56} color="#FFFFFF" />
+          {/* ── Logo row ── */}
+          <View style={styles.logoRow}>
+            <View style={styles.logoBox}>
+              <Ionicons name="fitness" size={22} color="#FFFFFF" />
             </View>
-            <Text style={styles.heroBrand}>FitTracker</Text>
-            <Text style={styles.heroTagline}>Tetap bugar, tetap semangat</Text>
+            <Text style={styles.logoText}>FitTracker</Text>
           </View>
 
-          {/* ── Form card ── */}
-          <View style={styles.card}>
-            <Text style={styles.welcomeTitle}>Selamat Datang 👋</Text>
-            <Text style={styles.welcomeSubtitle}>
-              Masuk untuk melanjutkan perjalanan fitness Anda
-            </Text>
+          {/* ── Hero banner — foto saja, teks sudah ada di dalam gambar ── */}
+          <View style={styles.heroBanner}>
+            <Image
+              source={require('../../assets/hero-login.jpg')}
+              style={styles.heroImage}
+              resizeMode="cover"
+            />
+          </View>
+
+          {/* ── Form ── */}
+          <View style={styles.form}>
 
             {/* Email */}
-            <Text style={styles.fieldLabel}>Email</Text>
+            <Text style={styles.fieldLabel}>Email atau nama pengguna</Text>
             <View style={styles.inputWrap}>
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color={colors.muted}
-                style={styles.inputIcon}
-              />
               <TextInput
                 style={styles.input}
                 value={email}
@@ -100,17 +88,17 @@ export default function LoginScreen() {
                 autoCapitalize="none"
                 keyboardType="email-address"
               />
+              <Ionicons
+                name="person-outline"
+                size={20}
+                color={colors.muted}
+                style={styles.inputIconRight}
+              />
             </View>
 
             {/* Password */}
-            <Text style={styles.fieldLabel}>Kata Sandi</Text>
+            <Text style={styles.fieldLabel}>Kata sandi</Text>
             <View style={styles.inputWrap}>
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={colors.muted}
-                style={styles.inputIcon}
-              />
               <TextInput
                 style={styles.input}
                 value={password}
@@ -119,19 +107,32 @@ export default function LoginScreen() {
                 placeholderTextColor={colors.muted}
                 secureTextEntry={!showPass}
               />
-              <Pressable
-                onPress={() => setShowPass((s) => !s)}
-                style={styles.eyeBtn}
-              >
+              <Pressable onPress={() => setShowPass((s) => !s)} style={styles.eyeBtn}>
                 <Ionicons
-                  name={showPass ? 'eye-off-outline' : 'eye-outline'}
+                  name={showPass ? 'eye-outline' : 'eye-off-outline'}
                   size={20}
                   color={colors.muted}
                 />
               </Pressable>
             </View>
 
-            {/* Login button */}
+            {/* Checkbox + Lupa kata sandi */}
+            <View style={styles.checkRow}>
+              <Pressable
+                style={styles.checkboxRow}
+                onPress={() => setShowPass((s) => !s)}
+              >
+                <View style={[styles.checkbox, showPass && styles.checkboxChecked]}>
+                  {showPass && <Ionicons name="checkmark" size={12} color="#fff" />}
+                </View>
+                <Text style={styles.checkboxLabel}>Tampilkan sandi</Text>
+              </Pressable>
+              <Pressable>
+                <Text style={styles.forgotText}>Lupa kata sandi?</Text>
+              </Pressable>
+            </View>
+
+            {/* Tombol Masuk */}
             <Pressable
               style={({ pressed }) => [styles.loginBtn, pressed && { opacity: 0.85 }]}
               onPress={handleLogin}
@@ -141,18 +142,18 @@ export default function LoginScreen() {
                 <ActivityIndicator color="#FFF" />
               ) : (
                 <>
-                  <Text style={styles.loginBtnText}>Masuk</Text>
                   <Ionicons
                     name="arrow-forward"
-                    size={20}
+                    size={18}
                     color="#FFF"
-                    style={{ marginLeft: 8 }}
+                    style={{ marginRight: 8 }}
                   />
+                  <Text style={styles.loginBtnText}>Masuk</Text>
                 </>
               )}
             </Pressable>
 
-            {/* Register link */}
+            {/* Link daftar */}
             <Pressable
               style={styles.linkButton}
               onPress={() => router.push('/register')}
@@ -170,119 +171,143 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.primary },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   scroll: { flexGrow: 1 },
 
-  /* Hero */
-  hero: {
-    height: SCREEN_HEIGHT * 0.42,
+  /* ── Logo row ── */
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 14,
+    paddingBottom: 10,
+  },
+  logoBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 36,
-    overflow: 'hidden',
+    marginRight: 10,
   },
-  decoCircle: {
-    position: 'absolute',
-    borderRadius: 999,
-    backgroundColor: '#FFFFFF',
-  },
-  heroBadge: {
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  heroBrand: {
-    fontSize: 34,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    letterSpacing: 0.5,
-  },
-  heroTagline: {
-    fontSize: 15,
-    color: 'rgba(255,255,255,0.85)',
-    marginTop: 6,
-  },
-
-  /* Form card */
-  card: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    marginTop: -28,
-    paddingHorizontal: 26,
-    paddingTop: 32,
-    paddingBottom: 30,
-  },
-  welcomeTitle: {
-    fontSize: 24,
+  logoText: {
+    fontSize: 20,
     fontWeight: 'bold',
     color: colors.text,
   },
-  welcomeSubtitle: {
-    fontSize: 15,
-    color: colors.muted,
-    marginTop: 6,
-    marginBottom: 24,
-    lineHeight: 22,
+
+  /* ── Hero banner ── */
+  heroBanner: {
+    height: SCREEN_HEIGHT * 0.28,
+    marginHorizontal: 20,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: colors.primary,
+  },
+  heroImage: {
+    width: '100%',
+    height: '100%',
+  },
+
+  /* ── Form ── */
+  form: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 30,
   },
   fieldLabel: {
     fontSize: 14,
-    fontWeight: '600',
     color: colors.text,
     marginBottom: 8,
-    marginTop: 2,
+    marginTop: 4,
   },
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 14,
-    backgroundColor: '#F8FAFC',
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
     marginBottom: 16,
-    height: 54,
-  },
-  inputIcon: {
+    height: 52,
     paddingHorizontal: 14,
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     color: colors.text,
     paddingVertical: 0,
   },
+  inputIconRight: {
+    marginLeft: 8,
+  },
   eyeBtn: {
-    paddingHorizontal: 14,
-    height: '100%',
+    marginLeft: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
+
+  /* ── Checkbox row ── */
+  checkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 22,
+    marginTop: -4,
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkbox: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    marginRight: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  checkboxChecked: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  checkboxLabel: {
+    fontSize: 13,
+    color: colors.muted,
+  },
+  forgotText: {
+    fontSize: 13,
+    color: colors.primary,
+    fontWeight: '600',
+  },
+
+  /* ── Tombol Masuk ── */
   loginBtn: {
     flexDirection: 'row',
     backgroundColor: colors.primary,
-    height: 56,
-    borderRadius: 16,
+    height: 54,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
+    marginBottom: 4,
   },
   loginBtnText: {
     color: '#FFFFFF',
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: 'bold',
   },
+
+  /* ── Link daftar ── */
   linkButton: {
-    marginTop: 24,
+    marginTop: 20,
     alignItems: 'center',
   },
   linkText: {
-    fontSize: 15,
+    fontSize: 14,
     color: colors.muted,
   },
   boldText: {

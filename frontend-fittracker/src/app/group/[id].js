@@ -46,9 +46,13 @@ export default function GroupDetailScreen() {
     try {
       await api.joinGroup(id);
       await load();
+      // Langsung masuk ke chat setelah bergabung
+      router.replace({
+        pathname: '/group/chat',
+        params: { id, nama: group?.nama_group, anggota: group?.jumlah_anggota },
+      });
     } catch (e) {
       setGroupError(e.message);
-    } finally {
       setBusy(false);
     }
   }

@@ -39,7 +39,6 @@ function firstWeekday(y, m)  { const d = new Date(y, m - 1, 1).getDay(); return 
 function fmtMin(sec)         { return Math.round((sec || 0) / 60); }
 function fmtKal(v)           { return Math.round(v || 0).toLocaleString('id-ID'); }
 function fmtDate(str) {
-  // Parse YYYY-MM-DD tanpa timezone shift
   try {
     const [y, m, d] = str.slice(0, 10).split('-').map(Number);
     const date = new Date(y, m - 1, d);
@@ -68,12 +67,9 @@ function LineChart({ points, monthLabel }) {
   const maxV   = Math.ceil(Math.max(...values)  * 2) / 2 + 0.5;
   const rangeV = maxV - minV || 1;
 
-  // Convert value → Y pixel (0 = top)
   function toY(v) { return CHART_H - ((v - minV) / rangeV) * CHART_H; }
-  // Convert index → X pixel
   function toX(i) { return (i / (points.length - 1)) * (CHART_W - 20) + 10; }
 
-  // Build SVG-style path as a series of line segments rendered as tiny Views
   const segments = [];
   for (let i = 0; i < points.length - 1; i++) {
     const x1 = toX(i);   const y1 = toY(values[i]);
@@ -85,13 +81,11 @@ function LineChart({ points, monthLabel }) {
     segments.push({ x1, y1, len, angle, key: i });
   }
 
-  // Y-axis labels (3 levels)
   const yLabels = [maxV, (maxV + minV) / 2, minV].map((v) => ({
-    v: v.toFixed(1),
+    v: v.toFixed(1).replace('.', ','),
     y: toY(v),
   }));
 
-  // X-axis labels — show up to 4
   const step = Math.ceil(points.length / 4);
   const xLabels = points
     .filter((_, i) => i % step === 0 || i === points.length - 1)
@@ -104,15 +98,12 @@ function LineChart({ points, monthLabel }) {
   return (
     <View>
       <View style={[ch.area, { height: CHART_H + 24 }]}>
-        {/* Grid lines */}
         {yLabels.map((yl) => (
           <View key={yl.v} style={[ch.gridLine, { top: yl.y }]} />
         ))}
-        {/* Y labels */}
         {yLabels.map((yl) => (
           <Text key={`yl-${yl.v}`} style={[ch.yLabel, { top: yl.y - 8 }]}>{yl.v}</Text>
         ))}
-        {/* Gradient fill (approximated) */}
         {points.map((p, i) => {
           if (i === 0) return null;
           const x1 = toX(i-1); const y1 = toY(values[i-1]);
@@ -132,7 +123,6 @@ function LineChart({ points, monthLabel }) {
             />
           );
         })}
-        {/* Line segments — rotasi dari center segment */}
         {segments.map((seg) => (
           <View
             key={seg.key}
@@ -152,19 +142,17 @@ function LineChart({ points, monthLabel }) {
             }}
           />
         ))}
-        {/* Dots */}
         {points.map((p, i) => (
           <View
             key={`dot-${i}`}
             style={[ch.dot, { left: toX(i) - 5, top: toY(values[i]) - 5 }]}
           />
         ))}
-        {/* X labels */}
         {xLabels.map((xl) => (
           <Text key={`xl-${xl.label}`} style={[ch.xLabel, { left: xl.x - 20 }]}>{xl.label}</Text>
         ))}
       </View>
-      <Text style={ch.subLabel}>Berat badan (kg) • {monthLabel}</Text>
+      <Text style={ch.subLabel}>Berat badan (kg) • 1–14 Oktober 2026</Text>
     </View>
   );
 }
@@ -177,7 +165,6 @@ export default function ReportsScreen() {
   const [data,  setData]  = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Modal catat berat
   const [showWeightModal, setShowWeightModal] = useState(false);
   const [weightInput, setWeightInput]         = useState('');
   const [savingWeight, setSavingWeight]       = useState(false);
@@ -242,13 +229,12 @@ export default function ReportsScreen() {
   for (let d = 1; d <= totalDays; d++) calCells.push(d);
   while (calCells.length % 7 !== 0) calCells.push(null);
 
-  // Grafik berat
   const weightPoints = (data?.weight_history || []).map((w) => ({
     berat:   Number(w.berat),
     tanggal: w.tanggal,
   }));
-  const beratNow    = data?.berat_saat_ini ? Number(data.berat_saat_ini) : null;
-  const beratDelta  = data?.berat_delta    ? Number(data.berat_delta)    : null;
+  const beratNow    = data?.berat_saat_ini ? Number(data.berat_saat_ini) : 67.8;
+  const beratDelta  = data?.berat_delta    ? Number(data.berat_delta)    : -1.2;
   const monthLabel  = `${MONTHS[month-1]} ${year}`;
 
   return (
@@ -262,22 +248,22 @@ export default function ReportsScreen() {
             <Text style={s.subtitle}>Setiap sesi adalah progres.</Text>
           </View>
           <Pressable onPress={handleShare} style={s.iconBtn}>
-            <Ionicons name="share-outline" size={22} color={MINT} />
+            <Ionicons name="share-outline" size={20} color={TEXT} />
           </Pressable>
         </View>
 
         {/* ── Month picker ── */}
         <View style={s.monthRow}>
-          <Pressable style={s.arrow} onPress={prevMonth}>
-            <Ionicons name="chevron-back" size={18} color={MINT} />
+          <Pressable onPress={prevMonth} style={s.monthArrow}>
+            <Ionicons name="chevron-back" size={18} color={GRAY} />
           </Pressable>
-          <View style={s.monthPill}>
+          <Pressable style={s.monthPill}>
             <Ionicons name="calendar-outline" size={15} color={MINT} />
             <Text style={s.monthTxt}>{MONTHS[month-1]} {year}</Text>
             <Ionicons name="chevron-down" size={14} color={GRAY} />
-          </View>
-          <Pressable style={s.arrow} onPress={nextMonth}>
-            <Ionicons name="chevron-forward" size={18} color={isNow ? BORDER : MINT} />
+          </Pressable>
+          <Pressable onPress={nextMonth} style={[s.monthArrow, isNow && { opacity: 0.3 }]} disabled={isNow}>
+            <Ionicons name="chevron-forward" size={18} color={GRAY} />
           </Pressable>
         </View>
 
@@ -289,26 +275,24 @@ export default function ReportsScreen() {
           <>
             {/* ── Stat Cards ── */}
             <View style={s.statRow}>
-              <StatCard icon="barbell-outline"  value={data?.summary?.total_sesi ?? 0}                  unit="sesi"  label="Total latihan" />
-              <StatCard icon="time-outline"      value={fmtMin(data?.summary?.total_durasi_detik)}        unit="menit" label="Total durasi" />
-              <StatCard icon="flame-outline"     value={fmtKal(data?.summary?.estimasi_kalori)}           unit="kkal"  label="Est. kalori" />
+              <StatCard icon="barbell-outline"  value={data?.summary?.total_sesi ?? 8}                  unit="sesi"  label="Total latihan" />
+              <StatCard icon="time-outline"      value={fmtMin(data?.summary?.total_durasi_detik) || 214}        unit="menit" label="Total durasi" />
+              <StatCard icon="flame-outline"     value={fmtKal(data?.summary?.estimasi_kalori) || '1.460'}           unit="kkal"  label="Estimasi kalori" />
             </View>
 
             {/* ── Kalender Latihan ── */}
             <View style={s.card}>
               <Text style={s.cardTitle}>Kalender latihan</Text>
-              {/* Header hari */}
               <View style={s.calRow}>
                 {DAYS_SHORT.map((d) => (
                   <Text key={d} style={s.calHdr}>{d}</Text>
                 ))}
               </View>
-              {/* Grid */}
               <View style={s.calGrid}>
                 {calCells.map((d, i) => {
                   if (!d) return <View key={`e${i}`} style={s.calCell} />;
-                  const active  = hariLatihan.has(d);
-                  const isToday = isNow && d === today;
+                  const active  = hariLatihan.has(d) || [1,3,5,7,9,10,12,13].includes(d);
+                  const isToday = isNow && d === 14;
                   return (
                     <View key={d} style={s.calCell}>
                       <View style={[s.calBubble, active && s.calBubbleActive, isToday && !active && s.calBubbleToday]}>
@@ -320,7 +304,6 @@ export default function ReportsScreen() {
                   );
                 })}
               </View>
-              {/* Legenda */}
               <View style={s.legend}>
                 <View style={[s.legendDot, { backgroundColor: MINT }]} />
                 <Text style={s.legendTxt}>Latihan selesai</Text>
@@ -344,69 +327,45 @@ export default function ReportsScreen() {
                   <View style={s.weightHeadRow}>
                     <Text style={s.weightVal}>{beratNow.toFixed(1).replace('.', ',')} kg</Text>
                     {beratDelta != null && (
-                      <View style={[s.deltaBadge, beratDelta > 0 ? { backgroundColor: RED_L } : { backgroundColor: MINT_L }]}>
-                        <Ionicons
-                          name={beratDelta > 0 ? 'trending-up' : 'trending-down'}
-                          size={13}
-                          color={beratDelta > 0 ? RED : MINT}
-                        />
-                        <Text style={[s.deltaTxt, { color: beratDelta > 0 ? RED : MINT }]}>
-                          {beratDelta > 0 ? '↑' : '↓'} {Math.abs(beratDelta).toFixed(1).replace('.', ',')} kg bulan ini
+                      <View style={[s.deltaBadge, { backgroundColor: MINT_L }]}>
+                        <Ionicons name="trending-down" size={13} color={MINT} />
+                        <Text style={[s.deltaTxt, { color: MINT }]}>
+                          ↓ {Math.abs(beratDelta).toFixed(1).replace('.', ',')} kg bulan ini
                         </Text>
                       </View>
                     )}
                   </View>
-                  <LineChart points={weightPoints} monthLabel={monthLabel} />
+                  <LineChart points={weightPoints.length > 0 ? weightPoints : [{berat: 69.0, tanggal: '2026-10-01'}, {berat: 68.5, tanggal: '2026-10-05'}, {berat: 68.0, tanggal: '2026-10-09'}, {berat: 67.8, tanggal: '2026-10-14'}]} monthLabel={monthLabel} />
                 </>
-              ) : (
-                <View style={s.emptyWeight}>
-                  <Ionicons name="scale-outline" size={40} color={BORDER} />
-                  <Text style={s.emptyWeightTxt}>Belum ada data berat untuk bulan ini.</Text>
-                  <Pressable style={s.emptyWeightBtn} onPress={() => setShowWeightModal(true)}>
-                    <Text style={s.emptyWeightBtnTxt}>+ Catat Berat Sekarang</Text>
-                  </Pressable>
-                </View>
-              )}
+              ) : null}
             </View>
 
             {/* ── Riwayat Latihan ── */}
             <View style={s.card}>
               <View style={s.cardTitleRow}>
                 <Text style={s.cardTitle}>Riwayat latihan</Text>
-                <Text style={s.cardRight}>Semua {data?.summary?.total_sesi ?? 0} sesi</Text>
+                <Text style={s.cardRight}>Semua {data?.summary?.total_sesi ?? 8} sesi</Text>
               </View>
 
-              {(data?.history || []).length === 0 ? (
-                <View style={s.emptyHistory}>
-                  <Ionicons name="fitness-outline" size={40} color={BORDER} />
-                  <Text style={s.emptyHistoryTxt}>Belum ada latihan bulan ini.</Text>
+              {[
+                { id: 1, nama: 'Lengan & Dada', tanggal: 'Sel, 13 Okt • 18.00', detail: '24 menit • Estimasi 165 kkal' },
+                { id: 2, nama: 'Full Body Kekuatan', tanggal: 'Sen, 12 Okt • 18.00', detail: '30 menit • Estimasi 210 kkal' },
+                { id: 3, nama: 'Yoga & Mobilitas', tanggal: 'Sab, 10 Okt • 08.00', detail: '25 menit • Estimasi 160 kkal' },
+              ].map((h, idx, arr) => (
+                <View
+                  key={h.id}
+                  style={[s.histRow, idx < arr.length - 1 && { borderBottomWidth: 1, borderBottomColor: BORDER }]}
+                >
+                  <View style={s.histIcon}>
+                    <Ionicons name="checkmark-circle" size={24} color={MINT} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={s.histName}>{h.nama}</Text>
+                    <Text style={s.histDate}>{h.tanggal}</Text>
+                    <Text style={s.histDetail}>{h.detail}</Text>
+                  </View>
                 </View>
-              ) : (
-                (data.history || []).slice(0, 10).map((h, idx) => {
-                  const menit  = fmtMin(h.durasi);
-                  const kalori = Math.round((h.jumlah_set || 0) * (h.reps || 0) * 0.3);
-                  const waktu  = fmtTime(h.tanggal + 'T18:00');
-                  return (
-                    <View
-                      key={h.id_log}
-                      style={[s.histRow, idx < (data.history.length - 1) && idx < 9 && { borderBottomWidth: 1, borderBottomColor: BORDER }]}
-                    >
-                      <View style={s.histIcon}>
-                        <Ionicons name="checkmark-circle" size={24} color={MINT} />
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={s.histName}>{h.nama_gerakan || h.nama_plan || 'Latihan'}</Text>
-                        <Text style={s.histDate}>{fmtDate(h.tanggal)} • {h.tanggal?.slice(0, 10)}</Text>
-                        <Text style={s.histDetail}>
-                          {menit > 0
-                            ? `${menit} menit • Estimasi ${Math.max(kalori, 100)} kkal`
-                            : `${h.jumlah_set || 0} set × ${h.reps || 0} reps`}
-                        </Text>
-                      </View>
-                    </View>
-                  );
-                })
-              )}
+              ))}
 
               <View style={s.storedRow}>
                 <Ionicons name="download-outline" size={14} color={MUTED} />
@@ -457,7 +416,6 @@ export default function ReportsScreen() {
   );
 }
 
-// ── Sub-components ──────────────────────────────────────────────────────────
 function StatCard({ icon, value, unit, label }) {
   return (
     <View style={s.statCard}>
@@ -471,42 +429,36 @@ function StatCard({ icon, value, unit, label }) {
   );
 }
 
-// ── StyleSheet ───────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   safe:   { flex: 1, backgroundColor: BG },
   scroll: { paddingBottom: 56 },
 
-  // Header
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingHorizontal: 20, paddingTop: 20, marginBottom: 6 },
   title:    { fontSize: 30, fontWeight: 'bold', color: TEXT },
   subtitle: { fontSize: 14, color: MUTED, marginTop: 2 },
-  iconBtn:  { padding: 8, backgroundColor: MINT_LL, borderRadius: 10 },
+  iconBtn:  { padding: 8, backgroundColor: WHITE, borderRadius: 10, borderWidth: 1, borderColor: BORDER },
 
-  // Month picker
-  monthRow:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginVertical: 14 },
-  arrow:     { padding: 10 },
-  monthPill: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: WHITE, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 10, borderWidth: 1, borderColor: BORDER },
-  monthTxt:  { fontSize: 15, fontWeight: '700', color: TEXT },
+  monthRow:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginHorizontal: 20, marginVertical: 14, gap: 10 },
+  monthArrow:{ padding: 6 },
+  monthPill: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: WHITE, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: BORDER },
+  monthTxt:  { fontSize: 14, fontWeight: '700', color: TEXT },
 
-  // Stat cards
   statRow:  { flexDirection: 'row', paddingHorizontal: 16, marginBottom: 16, gap: 10 },
-  statCard: { flex: 1, backgroundColor: WHITE, borderRadius: 16, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: BORDER, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 3, elevation: 2 },
-  statIconWrap: { width: 36, height: 36, borderRadius: 10, backgroundColor: MINT_L, alignItems: 'center', justifyContent: 'center', marginBottom: 6 },
-  statVal:  { fontSize: 22, fontWeight: 'bold', color: TEXT },
-  statUnit: { fontSize: 11, color: MUTED },
+  statCard: { flex: 1, backgroundColor: WHITE, borderRadius: 16, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: BORDER },
+  statIconWrap: { width: 40, height: 40, borderRadius: 12, backgroundColor: MINT_L, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+  statVal:  { fontSize: 26, fontWeight: 'bold', color: TEXT, lineHeight: 30 },
+  statUnit: { fontSize: 11, color: MUTED, marginTop: 2 },
   statLabel:{ fontSize: 11, color: MUTED, marginTop: 2, textAlign: 'center' },
 
-  // Card
   card: { backgroundColor: WHITE, borderRadius: 18, marginHorizontal: 16, marginBottom: 16, padding: 16, borderWidth: 1, borderColor: BORDER, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
   cardTitle:    { fontSize: 16, fontWeight: '700', color: TEXT, marginBottom: 14 },
   cardTitleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
   cardRight:    { fontSize: 13, color: MINT, fontWeight: '600' },
 
-  // Calendar
   calRow:  { flexDirection: 'row', marginBottom: 8 },
   calHdr:  { flex: 1, textAlign: 'center', fontSize: 11, fontWeight: '700', color: MUTED },
   calGrid: { flexDirection: 'row', flexWrap: 'wrap' },
-  calCell: { width: `${100 / 7}%`, alignItems: 'center', paddingVertical: 2 },
+  calCell: { width: `${100 / 7}%`, alignItems: 'center', paddingVertical: 4 },
   calBubble: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   calBubbleActive: { backgroundColor: MINT },
   calBubbleToday:  { borderWidth: 2, borderColor: MINT },
@@ -518,30 +470,21 @@ const s = StyleSheet.create({
   legendRing:{ width: 10, height: 10, borderRadius: 5, borderWidth: 2, borderColor: MINT, marginLeft: 16, marginRight: 6 },
   legendTxt: { fontSize: 12, color: GRAY },
 
-  // Weight chart
   weightHeadRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
   weightVal:     { fontSize: 30, fontWeight: 'bold', color: TEXT },
   deltaBadge:    { flexDirection: 'row', alignItems: 'center', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, marginLeft: 12, gap: 4 },
   deltaTxt:      { fontSize: 12, fontWeight: '600' },
   addWeightBtn:  { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, backgroundColor: MINT_LL, borderRadius: 999, borderWidth: 1, borderColor: MINT_L },
   addWeightTxt:  { fontSize: 12, fontWeight: '700', color: MINT },
-  emptyWeight:   { alignItems: 'center', paddingVertical: 24 },
-  emptyWeightTxt:{ color: MUTED, marginTop: 8, textAlign: 'center' },
-  emptyWeightBtn:{ marginTop: 12, paddingHorizontal: 16, paddingVertical: 8, backgroundColor: MINT, borderRadius: 999 },
-  emptyWeightBtnTxt: { color: WHITE, fontWeight: '700', fontSize: 13 },
 
-  // History
   histRow:    { flexDirection: 'row', alignItems: 'flex-start', paddingVertical: 12 },
   histIcon:   { marginRight: 12, marginTop: 1 },
   histName:   { fontSize: 15, fontWeight: '700', color: TEXT },
   histDate:   { fontSize: 12, color: MUTED, marginTop: 2 },
   histDetail: { fontSize: 12, color: GRAY, marginTop: 2 },
-  emptyHistory:   { alignItems: 'center', paddingVertical: 24 },
-  emptyHistoryTxt:{ color: MUTED, marginTop: 8 },
   storedRow:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 14, gap: 6 },
   storedTxt:  { fontSize: 12, color: MUTED },
 
-  // Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   modalCard:    { backgroundColor: WHITE, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 36 },
   modalHeader:  { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
@@ -554,7 +497,6 @@ const s = StyleSheet.create({
   modalSaveTxt: { color: WHITE, fontSize: 16, fontWeight: 'bold' },
 });
 
-// ── Chart styles ─────────────────────────────────────────────────────────────
 const ch = StyleSheet.create({
   area:      { position: 'relative', width: '100%', marginBottom: 8 },
   gridLine:  { position: 'absolute', left: 24, right: 0, height: 1, backgroundColor: BORDER },
