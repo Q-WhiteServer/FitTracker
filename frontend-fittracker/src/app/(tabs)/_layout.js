@@ -31,6 +31,18 @@ export default function TabsLayout() {
         options={{ title: 'Latihan', tabBarIcon: ({ color }) => <Ionicons name="barbell-outline" size={22} color={color} /> }}
       />
       <Tabs.Screen
+        name="discover"
+        options={{
+          title: 'Temukan',
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={focused ? { backgroundColor: '#D1FAE5', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 4 } : {}}>
+              <Ionicons name="compass-outline" size={22} color={color} />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="schedule"
         options={{ title: 'Jadwal', tabBarIcon: ({ color }) => <Ionicons name="calendar-outline" size={22} color={color} /> }}
       />
